@@ -1,8 +1,10 @@
--- Pixel Smart Hub
+-- Pixel Smart Script Hub
+
+local player = game.Players.LocalPlayer
 
 local gui = Instance.new("ScreenGui")
-gui.Parent = game.CoreGui
 gui.Name = "PixelSmartHub"
+gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
 frame.Parent = gui
@@ -27,7 +29,7 @@ textbox.Size = UDim2.new(1,-20,0,50)
 textbox.Position = UDim2.new(0,10,0,60)
 textbox.BackgroundColor3 = Color3.fromRGB(50,50,50)
 textbox.TextColor3 = Color3.new(1,1,1)
-textbox.PlaceholderText = "Paste script, require(ID), hex require, or URL..."
+textbox.PlaceholderText = "Paste require(ID), URL, or Lua code..."
 textbox.Text = ""
 textbox.TextSize = 18
 textbox.Font = Enum.Font.SourceSans
@@ -66,7 +68,6 @@ execute.MouseButton1Click:Connect(function()
 
         -- detect require(decimal)
         local id = input:match("require%((%d+)%)")
-
         if id then
             require(tonumber(id))
             return
@@ -74,7 +75,6 @@ execute.MouseButton1Click:Connect(function()
 
         -- detect require(hex)
         local hex = input:match("require%((0x[%x]+)%)")
-
         if hex then
             require(tonumber(hex))
             return
@@ -82,12 +82,17 @@ execute.MouseButton1Click:Connect(function()
 
         -- detect URL
         if input:find("http") then
-            loadstring(game:HttpGet(input))()
+            loadstring(game:HttpGet(input,true))()
             return
         end
 
-        -- fallback run raw code
-        loadstring(input)()
+        -- run raw Lua code
+        local func,err = loadstring(input)
+        if func then
+            func()
+        else
+            warn(err)
+        end
 
     end)
 
